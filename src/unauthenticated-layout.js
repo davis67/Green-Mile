@@ -1,3 +1,5 @@
+import React from "react";
+
 function UnauthenticatedLayout({ children }) {
   return (
     <div className="min-h-screen bg-white flex">

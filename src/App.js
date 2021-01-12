@@ -1,6 +1,8 @@
+import React from "react";
 import { Unauthenticatedapp } from "./unauthenticated-app";
 import * as auth from "./auth-provider";
 import { useAsync } from "./utils/hooks";
+import "./test/server";
 
 function App() {
   const { setData } = useAsync();

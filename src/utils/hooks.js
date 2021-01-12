@@ -41,7 +41,7 @@ function useAsync(initialState) {
   ]);
 
   const setError = React.useCallback(
-    (data) => safeSetState({ error, status: "rejected" }),
+    (error) => safeSetState({ error, status: "rejected" }),
     [safeSetState]
   );
   const run = React.useCallback(
