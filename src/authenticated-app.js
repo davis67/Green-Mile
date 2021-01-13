@@ -1,4 +1,10 @@
-function Authenticatedapp() {
+import React from "react";
+
+import { HomeScreen } from "./screens/Home";
+import { NotFoundScreen } from "./screens/NotFound";
+import { Routes, Route, Link as RouterLink, useMatch } from "react-router-dom";
+
+function Authenticatedapp({ user, logout }) {
   return (
     <div className="h-screen flex overflow-hidden bg-gray-100">
       <div className="md:hidden">
@@ -367,12 +373,12 @@ function Authenticatedapp() {
                     >
                       Settings
                     </a>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150"
+                    <button
+                      onClick={logout}
+                      className="block px-4 py-2 w-full text-left text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150"
                     >
                       Sign out
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -398,4 +404,13 @@ function Authenticatedapp() {
   );
 }
 
-export { AauthenticatedaAp };
+function AppRoutes({ user }) {
+  return (
+    <Routes>
+      <Route path="/home" element={<HomeScreen user={user} />} />
+      <Route path="*" element={<NotFoundScreen />} />
+    </Routes>
+  );
+}
+
+export { Authenticatedapp };

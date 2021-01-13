@@ -32,6 +32,11 @@ const handlers = [
     const user = await usersDB.authenticate({ email, password });
     return res(ctx.json({ user }));
   }),
+  rest.get(`${apiUrl}/me`, async (req, res, ctx) => {
+    const user = await getUser(req);
+    const token = getToken(req);
+    return res(ctx.json({ user: { ...user, token } }));
+  }),
 ].map((handler) => {
   return {
     ...handler,

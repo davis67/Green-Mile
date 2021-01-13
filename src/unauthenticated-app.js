@@ -9,26 +9,15 @@ import { keyframes } from "@emotion/react";
 import { FaSpinner } from "react-icons/fa";
 import { UnauthenticatedLayout } from "./unauthenticated-layout";
 import { useAsync } from "./utils/hooks";
+import { Spinner } from "./components/lib";
+import { BrowserRouter as Router } from "react-router-dom";
 
-const spin = keyframes({
-  "0%": { transform: "rotate(0deg)" },
-  "100%": { transform: "rotate(360deg)" },
-});
-const Spinner = styled(FaSpinner)({
-  animation: `${spin} 1s linear infinite`,
-});
-Spinner.defaultProps = {
-  "aria-label": "loading",
-};
 function LoginForm({ onSubmit }) {
   const { run, isLoading, isError, error } = useAsync();
 
   function handleSubmit(event) {
     event.preventDefault();
     const { email, password } = event.target.elements;
-
-    console.log("email", email.value);
-    console.log("password", password.value);
 
     run(onSubmit({ email: email.value, password: password.value }));
   }
@@ -102,11 +91,13 @@ function LoginForm({ onSubmit }) {
 
 function Unauthenticatedapp({ login }) {
   return (
-    <UnauthenticatedLayout>
-      <div className="mt-6">
-        <LoginForm onSubmit={login} />
-      </div>
-    </UnauthenticatedLayout>
+    <Router>
+      <UnauthenticatedLayout>
+        <div className="mt-6">
+          <LoginForm onSubmit={login} />
+        </div>
+      </UnauthenticatedLayout>
+    </Router>
   );
 }
 

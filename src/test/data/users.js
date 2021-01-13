@@ -1,12 +1,31 @@
 const usersKey = "__bookshelf_users__";
 
-let users = {};
+let seededusers = {
+  2210022515: {
+    id: "2210022515",
+    email: "admin@greenmile.com",
+    passwordHash: "423803642",
+  },
+  2203394837: {
+    id: "2203394837",
+    email: "davis@greenmile.com",
+    passwordHash: "423803642",
+  },
+};
 
+window.addEventListener("load", (event) => {
+  console.log("page is fully reloaded");
+  window.localStorage.setItem(usersKey, JSON.stringify(seededusers));
+  console.log("a user has been successfully seeded");
+});
+
+let users = {};
 const persist = () =>
   window.localStorage.setItem(usersKey, JSON.stringify(users));
 
 const load = () =>
   Object.assign(users, JSON.parse(window.localStorage.getItem(usersKey)));
+console.log("users", JSON.parse(window.localStorage.getItem(usersKey)));
 
 try {
   load();
@@ -33,13 +52,15 @@ async function authenticate({ email, password }) {
 
   const id = hash(email);
 
-  const user = users[id] || {};
+  let user = {};
 
-  if (user.passwordHash === hash(password)) {
-    return { ...sanitizeUser(user), token: btoa(user.id) };
+  if (users[id] !== null) {
+    user = users[id];
+
+    if (user.passwordHash === hash(password)) {
+      return { ...sanitizeUser(user), token: btoa(user.id) };
+    }
   }
-
-  console.log("hash", id);
 
   const error = new Error("Invalid username or password");
 
