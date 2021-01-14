@@ -3,12 +3,10 @@ const usersKey = "__bookshelf_users__";
 let seededusers = {
   2210022515: {
     id: "2210022515",
+    name: "Admin GreenMile",
+    phoneNumber: "0704828232",
+    role: "hub-manager",
     email: "admin@greenmile.com",
-    passwordHash: "423803642",
-  },
-  2203394837: {
-    id: "2203394837",
-    email: "davis@greenmile.com",
     passwordHash: "423803642",
   },
 };
@@ -33,9 +31,27 @@ try {
   persist();
 }
 
-function validateUsersForm({ email, password }) {
+function validateUsersForm({ name, email, phoneNumber, role, password }) {
+  if (!name) {
+    const error = new Error("A Name is required");
+    error.status = 400;
+    throw error;
+  }
+
   if (!email) {
     const error = new Error("An Email Address is required");
+    error.status = 400;
+    throw error;
+  }
+
+  if (!role) {
+    const error = new Error("A Role is required");
+    error.status = 400;
+    throw error;
+  }
+
+  if (!phoneNumber) {
+    const error = new Error("A Phone Number is required");
     error.status = 400;
     throw error;
   }
@@ -47,8 +63,8 @@ function validateUsersForm({ email, password }) {
   }
 }
 
-async function authenticate({ email, password }) {
-  validateUsersForm({ email, password });
+async function authenticate({ name, email, phoneNumber, role, password }) {
+  validateUsersForm({ name, email, phoneNumber, role, password });
 
   const id = hash(email);
 
@@ -68,8 +84,8 @@ async function authenticate({ email, password }) {
   throw error;
 }
 
-async function create({ email, password }) {
-  validateUsersForm({ email, password });
+async function create({ name, email, phoneNumber, role, password }) {
+  validateUsersForm({ name, email, phoneNumber, role, password });
 
   const id = hash(email);
 
@@ -81,7 +97,7 @@ async function create({ email, password }) {
     throw error;
   }
 
-  users[id] = { id, email, passwordHash };
+  users[id] = { id, email, passwordHash, name, phoneNumber, role };
 
   persist();
 

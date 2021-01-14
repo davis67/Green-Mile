@@ -32,6 +32,35 @@ const handlers = [
     const user = await usersDB.authenticate({ email, password });
     return res(ctx.json({ user }));
   }),
+  rest.post(`${apiUrl}/register`, async (req, res, ctx) => {
+    const {
+      name,
+      email,
+      role,
+      phoneNumber,
+      password,
+      confirm_password,
+    } = req.body;
+    const userFields = {
+      name,
+      email,
+      role,
+      phoneNumber,
+      password,
+      confirm_password,
+    };
+    await usersDB.create(userFields);
+    let user;
+    try {
+      user = await usersDB.authenticate(userFields);
+    } catch (error) {
+      return res(
+        ctx.status(400),
+        ctx.json({ status: 400, message: error.message })
+      );
+    }
+    return res(ctx.json({ user }));
+  }),
   rest.get(`${apiUrl}/me`, async (req, res, ctx) => {
     const user = await getUser(req);
     const token = getToken(req);

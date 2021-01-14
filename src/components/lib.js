@@ -34,4 +34,23 @@ function FullPageSpinner() {
   );
 }
 
-export { Spinner, FullPageSpinner };
+function FullPageErrorFallback({ error }) {
+  return (
+    <div
+      role="alert"
+      css={{
+        color: "#ef5350",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <p>Uh oh... There's a problem. Try refreshing the app.</p>
+      <pre>{error.message}</pre>
+    </div>
+  );
+}
+
+export { Spinner, FullPageSpinner, FullPageErrorFallback };

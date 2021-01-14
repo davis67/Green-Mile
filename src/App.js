@@ -6,6 +6,7 @@ import { client } from "./utils/api-client";
 import { FullPageSpinner } from "./components/lib";
 import { useAsync } from "./utils/hooks";
 import "./test/server";
+import { BrowserRouter as Router } from "react-router-dom";
 
 async function getUser() {
   let user = null;
@@ -49,7 +50,9 @@ function App() {
 
   if (isSuccess) {
     return user ? (
-      <Authenticatedapp user={user} logout={logout} />
+      <Router>
+        <Authenticatedapp user={user} logout={logout} />
+      </Router>
     ) : (
       <Unauthenticatedapp login={login} />
     );
