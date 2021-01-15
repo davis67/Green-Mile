@@ -1,7 +1,7 @@
 const usersKey = "__bookshelf_users__";
 
-let seededusers = {
-  2210022515: {
+let users = [
+  {
     id: "2210022515",
     name: "Admin GreenMile",
     phoneNumber: "0704828232",
@@ -9,21 +9,24 @@ let seededusers = {
     email: "admin@greenmile.com",
     passwordHash: "423803642",
   },
-};
+];
 
 window.addEventListener("load", (event) => {
   console.log("page is fully reloaded");
-  window.localStorage.setItem(usersKey, JSON.stringify(seededusers));
+
+  let users = JSON.parse(window.localStorage.getItem(usersKey));
+
+  if (users === null) {
+    window.localStorage.setItem(usersKey, JSON.stringify(users));
+  }
+
   console.log("a user has been successfully seeded");
 });
 
-let users = {};
 const persist = () =>
   window.localStorage.setItem(usersKey, JSON.stringify(users));
 
-const load = () =>
-  Object.assign(users, JSON.parse(window.localStorage.getItem(usersKey)));
-console.log("users", JSON.parse(window.localStorage.getItem(usersKey)));
+const load = () => JSON.parse(window.localStorage.getItem(usersKey));
 
 try {
   load();
@@ -31,7 +34,13 @@ try {
   persist();
 }
 
-function validateUsersForm({ name, email, phoneNumber, role, password }) {
+function validateUsersFormAfterRegister({
+  name,
+  email,
+  phoneNumber,
+  role,
+  password,
+}) {
   if (!name) {
     const error = new Error("A Name is required");
     error.status = 400;
@@ -63,16 +72,30 @@ function validateUsersForm({ name, email, phoneNumber, role, password }) {
   }
 }
 
-async function authenticate({ name, email, phoneNumber, role, password }) {
-  validateUsersForm({ name, email, phoneNumber, role, password });
+function validateUsersFormAfterLogin({ email, password }) {
+  if (!email) {
+    const error = new Error("An Email Address is required");
+    error.status = 400;
+    throw error;
+  }
+
+  if (!password) {
+    const error = new Error("A password is required");
+    error.status = 400;
+    throw error;
+  }
+}
+
+async function authenticate({ email, password }) {
+  validateUsersFormAfterLogin({ email, password });
 
   const id = hash(email);
 
-  let user = {};
+  let users = JSON.parse(window.localStorage.getItem(usersKey));
 
-  if (users[id] !== null) {
-    user = users[id];
+  let user = users.find((u) => u.id === id);
 
+  if (user !== null) {
     if (user.passwordHash === hash(password)) {
       return { ...sanitizeUser(user), token: btoa(user.id) };
     }
@@ -85,28 +108,44 @@ async function authenticate({ name, email, phoneNumber, role, password }) {
 }
 
 async function create({ name, email, phoneNumber, role, password }) {
-  validateUsersForm({ name, email, phoneNumber, role, password });
+  validateUsersFormAfterRegister({ name, email, phoneNumber, role, password });
 
   const id = hash(email);
 
+  let users = JSON.parse(window.localStorage.getItem(usersKey));
+
+  let user = users.find((u) => u.id === id);
+
   const passwordHash = hash(password);
 
-  if (users[id]) {
+  if (user) {
     const error = new Error(`User with ${email} already exists`);
     error.status = 400;
     throw error;
   }
 
-  users[id] = { id, email, passwordHash, name, phoneNumber, role };
+  let registeredUser = { id, email, passwordHash, name, phoneNumber, role };
 
-  persist();
+  users.push(registeredUser);
+
+  // window.localStorage.removeItem(usersKey);
+
+  // persist();
+  window.localStorage.setItem(usersKey, JSON.stringify(users));
+
+  console.log("registered user", users);
 
   return read(id);
 }
 
 async function read(id) {
   validateUser(id);
-  return sanitizeUser(users[id]);
+
+  let users = JSON.parse(window.localStorage.getItem(usersKey));
+
+  let user = users.find((u) => u.id === id);
+
+  return sanitizeUser(user);
 }
 
 async function update(id, updates) {
@@ -133,9 +172,13 @@ async function reset() {
 }
 
 function validateUser(id) {
-  load();
+  // load();
 
-  if (!users[id]) {
+  let users = JSON.parse(window.localStorage.getItem(usersKey));
+
+  let user = users.find((u) => u.id === id);
+
+  if (!user) {
     const error = new Error(`No user with the id "${id}"`);
     error.status = 404;
     throw error;
@@ -159,4 +202,4 @@ function hash(str) {
   return String(hash >>> 0);
 }
 
-export { authenticate, create, read, update, remove, reset };
+export { authenticate, create, read, update, remove, reset, usersKey };

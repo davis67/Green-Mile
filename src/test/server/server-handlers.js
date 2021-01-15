@@ -66,6 +66,26 @@ const handlers = [
     const token = getToken(req);
     return res(ctx.json({ user: { ...user, token } }));
   }),
+
+  rest.get(`${apiUrl}/members`, async (req, res, ctx) => {
+    if (!req.url.searchParams.has("query")) {
+      return ctx.fetch(req);
+    }
+
+    const query = req.url.searchParams.get("query");
+
+    let matchingUsers = [];
+
+    let matchedUsers = JSON.parse(
+      window.localStorage.getItem(usersDB.usersKey)
+    );
+
+    if (query) {
+      matchingUsers = await matchedUsers.query(query);
+    }
+
+    return res(ctx.json({ members: matchedUsers }));
+  }),
 ].map((handler) => {
   return {
     ...handler,

@@ -2,6 +2,7 @@ import React from "react";
 
 import { HomeScreen } from "./screens/Home";
 import { NotFoundScreen } from "./screens/NotFound";
+import { AddMembersScreen } from "./screens/AddMembers";
 import { MembersScreen } from "./screens/Members";
 import { Routes, Route, Link as RouterLink, useMatch } from "react-router-dom";
 import { ErrorBoundary } from "react-error-boundary";
@@ -10,7 +11,7 @@ import { FullPageErrorFallback } from "./components/lib";
 function Authenticatedapp({ user, logout }) {
   return (
     <ErrorBoundary FallbackComponent={FullPageErrorFallback}>
-      <div className="h-screen flex overflow-hidden bg-gray-100">
+      <div className="h-screen flex overflow-hidden bg-gray-50">
         <div className="md:hidden">
           <div className="fixed inset-0 z-30 transition-opacity ease-linear duration-300">
             <div className="absolute inset-0 bg-gray-600 opacity-75"></div>
@@ -60,7 +61,7 @@ function Authenticatedapp({ user, logout }) {
           </div>
         </div>
         <div className="flex flex-col w-0 flex-1 overflow-hidden">
-          <div className="relative z-10 flex-shrink-0 flex h-16 bg-white shadow">
+          <div className="relative z-10 flex-shrink-0 flex h-16 bg-white">
             <button className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:bg-gray-100 focus:text-gray-600 md:hidden">
               <svg
                 className="h-6 w-6"
@@ -339,6 +340,7 @@ function AppRoutes({ user }) {
   return (
     <Routes>
       <Route path="/home" element={<HomeScreen user={user} />} />
+      <Route path="/members/add" element={<AddMembersScreen user={user} />} />
       <Route path="/members" element={<MembersScreen user={user} />} />
       <Route path="*" element={<NotFoundScreen />} />
     </Routes>
