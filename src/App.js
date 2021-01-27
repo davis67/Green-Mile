@@ -5,7 +5,7 @@ import * as auth from "./auth-provider";
 import { client } from "./utils/api-client";
 import { FullPageSpinner } from "./components/lib";
 import { useAsync } from "./utils/hooks";
-import "./test/server";
+// import "./test/server";
 import { BrowserRouter as Router } from "react-router-dom";
 
 async function getUser() {
@@ -14,8 +14,9 @@ async function getUser() {
   const token = await auth.getToken();
 
   if (token) {
-    const data = await client("me", { token });
-    user = data.user;
+    const data = await client("auth/me", "GET");
+
+    user = data.data;
   }
 
   return user;
@@ -49,6 +50,7 @@ function App() {
   }
 
   if (isSuccess) {
+    console.log("user", user);
     return user ? (
       <Router>
         <Authenticatedapp user={user} logout={logout} />

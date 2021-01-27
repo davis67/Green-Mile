@@ -16,14 +16,15 @@ const loadingMembers = Array.from({ length: 10 }, (v, index) => ({
 const getMemberSearchConfig = (query, user) => ({
   queryKey: ["memberSearch", { query }],
   queryFn: () => {
-    return client(`members?query=${encodeURIComponent(query)}`, {
-      token: user.token,
-    }).then((data) => data.members);
+    return client(
+      `auth/members?query=${encodeURIComponent(query)}`,
+      "GET"
+    ).then((data) => data.data);
   },
 
   config: {
-    onSuccess(members) {
-      for (const member of members) {
+    onSuccess(data) {
+      for (const member of data) {
         setQueryDataForMember(member);
       }
     },
@@ -31,7 +32,7 @@ const getMemberSearchConfig = (query, user) => ({
 });
 
 async function refetchMemberSearchQuery(user) {
-  queryCache.removeQueries("bookSearch");
+  queryCache.removeQueries("memberSearch");
   await queryCache.prefetchQuery(getMemberSearchConfig("", user));
 }
 
@@ -45,4 +46,19 @@ function useMembersSearch(query, user) {
   return { ...result, members: result.data ?? loadingMember };
 }
 
-export { useMembersSearch, refetchMemberSearchQuery };
+function useMember(memberId, user) {
+  const data = useQuery({
+    queryKey: ["member", { memberId }],
+    queryFn: () =>
+      client(`auth/members/${memberId}`, "GET").then((data) => data.data),
+  });
+
+  return {
+    isLoading: data.isLoading,
+    isError: data.isError,
+    isSuccess: data.isSuccess,
+    member: data.data ?? loadingMember,
+  };
+}
+
+export { useMembersSearch, useMember, refetchMemberSearchQuery };

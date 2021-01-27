@@ -86,6 +86,37 @@ const handlers = [
 
     return res(ctx.json({ members: matchedUsers }));
   }),
+
+  rest.get(`${apiUrl}/members/:memberId`, async (req, res, ctx) => {
+    const { memberId } = req.params;
+
+    const member = await usersDB.read(memberId);
+
+    if (!member) {
+      return res(
+        ctx.status(404),
+        ctx.json({ status: 404, message: "Member not Found" })
+      );
+    }
+
+    return res(ctx.json({ member }));
+  }),
+
+  rest.put(`${apiUrl}/members/:memberId/update`, async (req, res, ctx) => {
+    const { memberId } = req.params;
+
+    const member = await usersDB.update(memberId, req.body);
+
+    return res(ctx.json({ member }));
+  }),
+
+  rest.delete(`${apiUrl}/members/:memberId/delete`, async (req, res, ctx) => {
+    const { memberId } = req.params;
+
+    const result = await usersDB.remove(memberId);
+
+    return res(ctx.json({ result }));
+  }),
 ].map((handler) => {
   return {
     ...handler,

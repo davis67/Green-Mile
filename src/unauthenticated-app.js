@@ -66,7 +66,7 @@ function LoginForm({ onSubmit }) {
           <div className="text-sm leading-5">
             <a
               href="#"
-              className="font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+              className="font-medium text-gray-600 hover:text-gray-500 focus:outline-none focus:underline transition ease-in-out duration-150"
             >
               Forgot your password?
             </a>
@@ -77,7 +77,7 @@ function LoginForm({ onSubmit }) {
           <span className="block w-full rounded-md shadow-sm">
             <button
               type="submit"
-              className="w-full flex justify-center items-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition duration-150 ease-in-out"
+              className="w-full flex justify-center items-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-500 focus:outline-none focus:border-gray-700 focus:shadow-outline-gray active:bg-gray-700 transition duration-150 ease-in-out"
             >
               Sign in
               {isLoading ? <Spinner css={{ marginLeft: 5 }} /> : null}

@@ -3,7 +3,9 @@ import React from "react";
 import { HomeScreen } from "./screens/Home";
 import { NotFoundScreen } from "./screens/NotFound";
 import { AddMembersScreen } from "./screens/AddMembers";
+import { EditMemberScreen } from "./screens/EditMember";
 import { MembersScreen } from "./screens/Members";
+import { MemberScreen } from "./screens/Member";
 import { Routes, Route, Link as RouterLink, useMatch } from "react-router-dom";
 import { ErrorBoundary } from "react-error-boundary";
 import { FullPageErrorFallback } from "./components/lib";
@@ -100,7 +102,7 @@ function Authenticatedapp({ user, logout }) {
                     <input
                       id="search_field"
                       className="block w-full h-full pl-8 pr-3 py-2 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 sm:text-sm"
-                      placeholder="Search"
+                      placeholder="Search for Products using Product Id"
                     />
                   </div>
                 </div>
@@ -221,7 +223,7 @@ function DesktopNavLink() {
             d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
           />
         </svg>
-        Projects
+        Suppliers
       </a>
       <a
         href="#"
@@ -337,11 +339,17 @@ function MobileNavLink() {
 }
 
 function AppRoutes({ user }) {
+  console.log("user-app-routes", user);
   return (
     <Routes>
       <Route path="/home" element={<HomeScreen user={user} />} />
       <Route path="/members/add" element={<AddMembersScreen user={user} />} />
       <Route path="/members" element={<MembersScreen user={user} />} />
+      <Route path="/members/:memberId" element={<MemberScreen user={user} />} />
+      <Route
+        path="/members/:memberId/edit"
+        element={<EditMemberScreen user={user} />}
+      />
       <Route path="*" element={<NotFoundScreen />} />
     </Routes>
   );

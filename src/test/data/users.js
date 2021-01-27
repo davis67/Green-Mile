@@ -128,12 +128,7 @@ async function create({ name, email, phoneNumber, role, password }) {
 
   users.push(registeredUser);
 
-  // window.localStorage.removeItem(usersKey);
-
-  // persist();
   window.localStorage.setItem(usersKey, JSON.stringify(users));
-
-  console.log("registered user", users);
 
   return read(id);
 }
@@ -151,18 +146,35 @@ async function read(id) {
 async function update(id, updates) {
   validateUser(id);
 
-  Object.assign(users[id], updates);
+  let users = JSON.parse(window.localStorage.getItem(usersKey));
 
-  persist();
+  let userIndex = users.findIndex((u) => u.id === id);
+  let updatedUser = users.find((u) => u.id === id);
+
+  updatedUser.name = updates.name;
+  updatedUser.email = updates.email;
+  updatedUser.phoneNumber = updates.phoneNumber;
+  updatedUser.role = updates.role;
+
+  users[userIndex] = updatedUser;
+
+  window.localStorage.setItem(usersKey, JSON.stringify(users));
 
   return read(id);
 }
 
 async function remove(id) {
   validateUser(id);
-  delete users[id];
 
-  persist();
+  let users = JSON.parse(window.localStorage.getItem(usersKey));
+
+  let userIndex = users.findIndex((u) => u.id === id);
+
+  users.splice(userIndex, 1);
+
+  window.localStorage.setItem(usersKey, JSON.stringify(users));
+
+  return { success: true };
 }
 
 async function reset() {

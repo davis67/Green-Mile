@@ -1,12 +1,15 @@
 import * as auth from "../auth-provider";
 const apiURL = process.env.REACT_APP_API_URL;
 
-function client(
+async function client(
   endpoint,
-  { data, token, headers: customHeaders, ...customConfig } = {}
+  method,
+  { data, headers: customHeaders, ...customConfig } = {}
 ) {
+  const token = await auth.getToken();
+  console.log("token", token);
   const config = {
-    method: data ? "POST" : "GET",
+    method: method,
     body: data ? JSON.stringify(data) : undefined,
     headers: {
       Authorization: token ? `Bearer ${token}` : undefined,
@@ -16,22 +19,20 @@ function client(
     ...customConfig,
   };
 
-  return window
-    .fetch(`${apiURL}/${endpoint}`, config)
-    .then(async (response) => {
-      if (response.status === 401) {
-        await auth.logout();
-        // refresh the page for them
-        window.location.assign(window.location);
-        return Promise.reject({ message: "Please re-authenticate." });
-      }
-      const data = await response.json();
-      if (response.ok) {
-        return data;
-      } else {
-        return Promise.reject(data);
-      }
-    });
+  return window.fetch(`${apiURL}${endpoint}`, config).then(async (response) => {
+    if (response.status === 401) {
+      await auth.logout();
+      // refresh the page for them
+      window.location.assign(window.location);
+      return Promise.reject({ message: "Please re-authenticate." });
+    }
+    const data = await response.json();
+    if (response.ok) {
+      return data;
+    } else {
+      return Promise.reject(data);
+    }
+  });
 }
 
 export { client };
