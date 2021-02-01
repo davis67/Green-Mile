@@ -1,7 +1,8 @@
 const localStorageKey = "__auth_provider__token__";
 
-function handleUserResponse({ user }) {
-  window.localStorage.setItem(localStorageKey, user.token);
+function handleUserResponse(user) {
+  console.log("user", user);
+  window.localStorage.setItem(localStorageKey, user.tokens.access);
 
   return user;
 }
@@ -30,7 +31,7 @@ async function client(endpoint, data) {
   };
 
   return window
-    .fetch(`${authURL}/${endpoint}`, config)
+    .fetch(`${authURL}${endpoint}`, config)
     .then(async (response) => {
       const data = await response.json();
 

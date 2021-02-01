@@ -32,10 +32,90 @@ const handlers = [
     const user = await usersDB.authenticate({ email, password });
     return res(ctx.json({ user }));
   }),
+  rest.post(`${apiUrl}/register`, async (req, res, ctx) => {
+    const {
+      name,
+      email,
+      role,
+      phoneNumber,
+      password,
+      confirm_password,
+    } = req.body;
+    const userFields = {
+      name,
+      email,
+      role,
+      phoneNumber,
+      password,
+      confirm_password,
+    };
+    await usersDB.create(userFields);
+    let user;
+    try {
+      user = await usersDB.authenticate(userFields);
+    } catch (error) {
+      return res(
+        ctx.status(400),
+        ctx.json({ status: 400, message: error.message })
+      );
+    }
+    return res(ctx.json({ user }));
+  }),
   rest.get(`${apiUrl}/me`, async (req, res, ctx) => {
     const user = await getUser(req);
     const token = getToken(req);
     return res(ctx.json({ user: { ...user, token } }));
+  }),
+
+  rest.get(`${apiUrl}/members`, async (req, res, ctx) => {
+    if (!req.url.searchParams.has("query")) {
+      return ctx.fetch(req);
+    }
+
+    const query = req.url.searchParams.get("query");
+
+    let matchingUsers = [];
+
+    let matchedUsers = JSON.parse(
+      window.localStorage.getItem(usersDB.usersKey)
+    );
+
+    if (query) {
+      matchingUsers = await matchedUsers.query(query);
+    }
+
+    return res(ctx.json({ members: matchedUsers }));
+  }),
+
+  rest.get(`${apiUrl}/members/:memberId`, async (req, res, ctx) => {
+    const { memberId } = req.params;
+
+    const member = await usersDB.read(memberId);
+
+    if (!member) {
+      return res(
+        ctx.status(404),
+        ctx.json({ status: 404, message: "Member not Found" })
+      );
+    }
+
+    return res(ctx.json({ member }));
+  }),
+
+  rest.put(`${apiUrl}/members/:memberId/update`, async (req, res, ctx) => {
+    const { memberId } = req.params;
+
+    const member = await usersDB.update(memberId, req.body);
+
+    return res(ctx.json({ member }));
+  }),
+
+  rest.delete(`${apiUrl}/members/:memberId/delete`, async (req, res, ctx) => {
+    const { memberId } = req.params;
+
+    const result = await usersDB.remove(memberId);
+
+    return res(ctx.json({ result }));
   }),
 ].map((handler) => {
   return {

@@ -1,31 +1,32 @@
 const usersKey = "__bookshelf_users__";
 
-let seededusers = {
-  2210022515: {
+let users = [
+  {
     id: "2210022515",
+    name: "Admin GreenMile",
+    phoneNumber: "0704828232",
+    role: "hub-manager",
     email: "admin@greenmile.com",
     passwordHash: "423803642",
   },
-  2203394837: {
-    id: "2203394837",
-    email: "davis@greenmile.com",
-    passwordHash: "423803642",
-  },
-};
+];
 
 window.addEventListener("load", (event) => {
   console.log("page is fully reloaded");
-  window.localStorage.setItem(usersKey, JSON.stringify(seededusers));
+
+  let users = JSON.parse(window.localStorage.getItem(usersKey));
+
+  if (users === null) {
+    window.localStorage.setItem(usersKey, JSON.stringify(users));
+  }
+
   console.log("a user has been successfully seeded");
 });
 
-let users = {};
 const persist = () =>
   window.localStorage.setItem(usersKey, JSON.stringify(users));
 
-const load = () =>
-  Object.assign(users, JSON.parse(window.localStorage.getItem(usersKey)));
-console.log("users", JSON.parse(window.localStorage.getItem(usersKey)));
+const load = () => JSON.parse(window.localStorage.getItem(usersKey));
 
 try {
   load();
@@ -33,7 +34,45 @@ try {
   persist();
 }
 
-function validateUsersForm({ email, password }) {
+function validateUsersFormAfterRegister({
+  name,
+  email,
+  phoneNumber,
+  role,
+  password,
+}) {
+  if (!name) {
+    const error = new Error("A Name is required");
+    error.status = 400;
+    throw error;
+  }
+
+  if (!email) {
+    const error = new Error("An Email Address is required");
+    error.status = 400;
+    throw error;
+  }
+
+  if (!role) {
+    const error = new Error("A Role is required");
+    error.status = 400;
+    throw error;
+  }
+
+  if (!phoneNumber) {
+    const error = new Error("A Phone Number is required");
+    error.status = 400;
+    throw error;
+  }
+
+  if (!password) {
+    const error = new Error("A password is required");
+    error.status = 400;
+    throw error;
+  }
+}
+
+function validateUsersFormAfterLogin({ email, password }) {
   if (!email) {
     const error = new Error("An Email Address is required");
     error.status = 400;
@@ -48,15 +87,15 @@ function validateUsersForm({ email, password }) {
 }
 
 async function authenticate({ email, password }) {
-  validateUsersForm({ email, password });
+  validateUsersFormAfterLogin({ email, password });
 
   const id = hash(email);
 
-  let user = {};
+  let users = JSON.parse(window.localStorage.getItem(usersKey));
 
-  if (users[id] !== null) {
-    user = users[id];
+  let user = users.find((u) => u.id === id);
 
+  if (user !== null) {
     if (user.passwordHash === hash(password)) {
       return { ...sanitizeUser(user), token: btoa(user.id) };
     }
@@ -68,46 +107,74 @@ async function authenticate({ email, password }) {
   throw error;
 }
 
-async function create({ email, password }) {
-  validateUsersForm({ email, password });
+async function create({ name, email, phoneNumber, role, password }) {
+  validateUsersFormAfterRegister({ name, email, phoneNumber, role, password });
 
   const id = hash(email);
 
+  let users = JSON.parse(window.localStorage.getItem(usersKey));
+
+  let user = users.find((u) => u.id === id);
+
   const passwordHash = hash(password);
 
-  if (users[id]) {
+  if (user) {
     const error = new Error(`User with ${email} already exists`);
     error.status = 400;
     throw error;
   }
 
-  users[id] = { id, email, passwordHash };
+  let registeredUser = { id, email, passwordHash, name, phoneNumber, role };
 
-  persist();
+  users.push(registeredUser);
+
+  window.localStorage.setItem(usersKey, JSON.stringify(users));
 
   return read(id);
 }
 
 async function read(id) {
   validateUser(id);
-  return sanitizeUser(users[id]);
+
+  let users = JSON.parse(window.localStorage.getItem(usersKey));
+
+  let user = users.find((u) => u.id === id);
+
+  return sanitizeUser(user);
 }
 
 async function update(id, updates) {
   validateUser(id);
 
-  Object.assign(users[id], updates);
+  let users = JSON.parse(window.localStorage.getItem(usersKey));
 
-  persist();
+  let userIndex = users.findIndex((u) => u.id === id);
+  let updatedUser = users.find((u) => u.id === id);
+
+  updatedUser.name = updates.name;
+  updatedUser.email = updates.email;
+  updatedUser.phoneNumber = updates.phoneNumber;
+  updatedUser.role = updates.role;
+
+  users[userIndex] = updatedUser;
+
+  window.localStorage.setItem(usersKey, JSON.stringify(users));
 
   return read(id);
 }
 
 async function remove(id) {
   validateUser(id);
-  delete users[id];
 
-  persist();
+  let users = JSON.parse(window.localStorage.getItem(usersKey));
+
+  let userIndex = users.findIndex((u) => u.id === id);
+
+  users.splice(userIndex, 1);
+
+  window.localStorage.setItem(usersKey, JSON.stringify(users));
+
+  return { success: true };
 }
 
 async function reset() {
@@ -117,9 +184,13 @@ async function reset() {
 }
 
 function validateUser(id) {
-  load();
+  // load();
 
-  if (!users[id]) {
+  let users = JSON.parse(window.localStorage.getItem(usersKey));
+
+  let user = users.find((u) => u.id === id);
+
+  if (!user) {
     const error = new Error(`No user with the id "${id}"`);
     error.status = 404;
     throw error;
@@ -143,4 +214,4 @@ function hash(str) {
   return String(hash >>> 0);
 }
 
-export { authenticate, create, read, update, remove, reset };
+export { authenticate, create, read, update, remove, reset, usersKey };
